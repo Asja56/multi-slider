@@ -1,0 +1,82 @@
+<div class="flex flex-col gap-2" #formArea>
+
+    <div class="flex flex-row items-center w-full gap-2 relative">
+      <!-- Slider -->
+      <div class="relative flex-grow h-1 mr-2" #sliderContainer>
+        <div class="absolute top-0 left-0 w-full h-full bg-gray-300 rounded-full"></div>
+        <ng-container *ngFor="let time of sliderValues(); let i = index">        
+          <!-- Black line between two toggles  -->
+           <div class="absolute bg-black h-full rounded-full" 
+            [style.width]="time | slidercalc: 'width'"
+            [style.left]="time | slidercalc: 'from'" >
+          </div>
+  
+          <!-- Toggle "from"  -->
+          <div class="absolute top-1/2 transform -translate-y-full flex justify-center items-center"
+            [style.left]="time | slidercalc: 'from'" (mousedown)="startDragging(i, 'from', $event)"
+            (touchstart)="startDragging(i, 'from', $event)"
+            [class.z-10]="isDragging() && draggedHandle() === 'from'">
+            <div class="thumb drag-drop"></div>
+          </div>
+  
+          <!-- Label "from"  -->
+          <div class="absolute top-1/2 transform -translate-y-full flex"
+            [style.left]="time | slidercalc: 'from'">          
+            <span class="mb-2 text-copy-extra-small text-nowrap drag-drop">{{ time.from | timeFormatter }}</span>
+          </div>
+  
+          <!-- Toggle "until"  -->
+          <div class="absolute top-1/2 flex transform justify-center items-center"
+            [style.left]="time | slidercalc: 'until'" (mousedown)="startDragging(i, 'until', $event)"
+            (touchstart)="startDragging(i, 'until', $event)"
+            [class.z-10]="isDragging() && draggedHandle() === 'until'">
+            <div class="thumb drag-drop"></div>
+          </div>
+  
+          <!-- Label "until"  -->
+          <div class="absolute top-1/2 flex transform"
+            [style.right]="time | slidercalc: 'label-until'">
+            <span class="pt-2 text-copy-extra-small text-nowrap drag-drop">{{ time.until | timeFormatter }}</span>
+          </div>
+        </ng-container>
+      </div>
+  
+      <!-- Edit button to toggle form visibility -->
+      <button mat-icon-button aria-label="Open time forms" (click)="toggleFormVisibility()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+  
+    <!-- Time Selector -->
+    <div class="mt-2 flex justify-between w-full flex-wrap items-center" *ngIf="isFormVisible()" #formContainer>
+      <form *ngFor="let time of timeForms(); let i = index" [formGroup]="time" class="flex flex-col max-w-72" >
+        <div class="flex justify-between items-center gap-1">
+          <span class="flex-col flex">
+            {{'FROM'}}
+            <input type="time" formControlName="from" (input)="onTimeInputChange(time, i)"
+            class="p-2 border cursor-pointer focus:outline-offset-[-2px] focus:outline focus:outline-2 focus:outline-black">
+          </span>
+          <span class="flex-col flex">
+            {{'UNTIL'}}          
+            <input type="time" formControlName="until" (input)="onTimeInputChange(time, i)"
+            class="p-2 border cursor-pointer focus:outline-offset-[-2px] focus:outline focus:outline-2 focus:outline-black">       
+          </span>
+          <span>
+            <span class="h-5 block"></span>
+            <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="delete" (click)="removeSelectorPair(i)"></mat-icon>
+          </span>      
+        </div>
+        <div *ngIf="time.hasError('fromBeforeUntil') || time.hasError('untilAfterFrom')"
+          class="text-error-soft mt-1"> {{ 'The start time must be before the end time' }} </div>        
+      </form>
+      <div class="flex justify-end">
+        <button mat-icon-button aria-label="Add another time period" (click)="addNewPair({from: '00:00', until: '01:00'})">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Save changes" #saveButton (click)="saveValue()">
+          <mat-icon>save</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  

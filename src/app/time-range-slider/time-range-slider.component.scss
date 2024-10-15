@@ -1,0 +1,20 @@
+
+.thumb {
+    position: absolute;
+    border-radius: 9999px;
+    background-color: black;
+    width: 16px;
+    height: 16px;
+ 
+    &:active {
+       width: 20px;
+       height: 20px;
+    }
+ 
+    &:hover {
+       cursor: pointer;
+       background-color: grey;
+       width: 20px;
+       height: 20px;
+    }
+ }
